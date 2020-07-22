@@ -1,0 +1,31 @@
+FROM ubuntu:latest
+
+RUN apt-get update
+
+ENV TZ=Europe/Moscow
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN apt-get install -y apache2 apache2-utils curl gnupg wget
+RUN a2enmod rewrite
+
+
+RUN apt-get install -y git python3 perl \
+    php nano
+
+RUN apt-get install -y \
+    php-pdo php-pdo-mysql \
+    php-mbstring php-tokenizer \
+    php-xml php-simplexml php-zip \
+    php-opcache php-iconv php-intl \
+    php-json php-gd php-ctype php-oauth \
+    php-apcu php-imagick php-xdebug \
+    php-memcached php-ftp php-imap \
+    php-curl iputils-ping
+
+RUN apt-get update
+
+EXPOSE 80
+
+WORKDIR /var/www
+
+CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]

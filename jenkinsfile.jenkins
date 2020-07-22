@@ -1,0 +1,50 @@
+#!groovy
+
+properties([disableConcurrentBuilds()])  //запретить одновременные сборки
+
+pipeline {
+    agent { 
+        label 'master'
+        }
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+        timestamps()
+    }
+    stages {
+        stage("create docker image") {
+            steps {
+                echo "====start build image ===="
+                dir ('./') {
+                    
+                    sh 'docker-compose build'
+                    sh 'docker-compose up -d'
+                    sh 'docker exec --tty mysql_site chmod -R 777 /var/lib/mysql'
+                }
+                echo "====start test ===="
+                dir ('./') {
+                    echo "Check current working directory"
+                    sh 'pwd'
+                    echo "Build docker image and run container"
+                    sh 'docker build -t test .'
+                    sh 'docker run -d --name test test'
+                    echo "Copy result.xml into Jenkins container"
+                    sh 'rm -rf ./web/test/allure_result/; mkdir ./web/test/allure_result/'
+                    sh 'docker cp test:/test/allure_result/ ./web/test/'
+                    echo "Stop test"
+                    sh 'docker stop test'
+                    sh 'docker rm test'
+                    script {
+                        allure([
+                        includeProperties: false,
+                        jdk: '',
+                        properties: [],
+                        reportBuildPolicy: 'ALWAYS',
+                        results: [[path: '**/web/test/allure_result']]
+                        ])
+                    }
+                }
+            }
+        }
+            
+    }
+}
