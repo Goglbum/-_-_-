@@ -29,7 +29,7 @@ COPY /web/test/ /test
 
 WORKDIR /test
 
-RUN pytest  --alluredir=allure_result
+RUN pytest --html=report.html
 
 CMD tail -f /dev/null
  
