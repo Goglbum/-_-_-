@@ -17,7 +17,7 @@ class BasePage:
     def go_to_site(self):
         return self.driver.get(self.base_url)
 
-    def go_to_bd(self):
+    def go_to_db(self):
         self = pymysql.connect(host='192.168.220.1',
                                      user='root',
                                      password='password',

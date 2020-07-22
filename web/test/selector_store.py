@@ -84,7 +84,7 @@ class SearchHelper(BasePage):
         assert text_list_full_of_books == 'List full of books'
 
     def check_publisher_list(self):
-        connection = self.go_to_bd()
+        connection = self.go_to_db()
         try:
             with connection.cursor() as cursor:
                 sql = "SELECT publisherid FROM books "
@@ -114,7 +114,7 @@ class SearchHelper(BasePage):
             connection.close()
 
     def check_book_title_wrox(self):
-        connection = self.go_to_bd()
+        connection = self.go_to_db()
         try:
             with connection.cursor() as cursor:
                 sql = "SELECT * FROM books WHERE publisherid = 1"
@@ -152,7 +152,7 @@ class SearchHelper(BasePage):
         assert self.driver.title == "List Of Publishers"
 
     def check_book_title_wiley(self):
-        connection = self.go_to_bd()
+        connection = self.go_to_db()
         try:
             with connection.cursor() as cursor:
                 sql = "SELECT * FROM books WHERE publisherid = 2"
@@ -190,7 +190,7 @@ class SearchHelper(BasePage):
         assert self.driver.title == "List Of Publishers"
 
     def check_book_title_reilli_media(self):
-        connection = self.go_to_bd()
+        connection = self.go_to_db()
         try:
             with connection.cursor() as cursor:
                 sql = "SELECT * FROM books WHERE publisherid = 3"
@@ -228,7 +228,7 @@ class SearchHelper(BasePage):
         assert self.driver.title == "List Of Publishers"
 
     def check_book_title_apress(self):
-        connection = self.go_to_bd()
+        connection = self.go_to_db()
         try:
             with connection.cursor() as cursor:
                 sql = "SELECT * FROM books WHERE publisherid = 4"
@@ -266,7 +266,7 @@ class SearchHelper(BasePage):
         assert self.driver.title == "List Of Publishers"
 
     def check_book_title_addison_wesley(self):
-        connection = self.go_to_bd()
+        connection = self.go_to_db()
         try:
             with connection.cursor() as cursor:
                 sql = "SELECT * FROM books WHERE publisherid = 6"
@@ -310,7 +310,7 @@ class SearchHelper(BasePage):
         assert self.driver.title == "Full Catalogs of Books"
 
     def check_books_all_list(self):
-        connection = self.go_to_bd()
+        connection = self.go_to_db()
         try:
             with connection.cursor() as cursor:
                 sql = "SELECT * FROM books "
