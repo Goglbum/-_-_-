@@ -1,4 +1,5 @@
 # docker_site
+Установить плагин Allure на Jenkins.
 Установка Allure Commandline:
 
 Рассмотрим вариант установки Allure Commandline на машине, имеющей доступ к Maven central.
