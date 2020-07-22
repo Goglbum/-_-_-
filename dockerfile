@@ -29,7 +29,7 @@ COPY /web/test/ /test
 
 WORKDIR /test
 
-RUN pytest --html=report.html
+RUN pytest -v --junitxml=reports/result.xml
 
 CMD tail -f /dev/null
  

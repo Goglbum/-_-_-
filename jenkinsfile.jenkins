@@ -28,8 +28,8 @@ pipeline {
                     sh 'docker build -t test .'
                     sh 'docker run -d --name test test'
                     echo "Copy result.xml into Jenkins container"
-                    sh 'rm -rf ./web/test/reports/result.xml; mkdir ./web/test/reports/result.xml'
-                    sh 'docker cp test:/test/reports/ ./web/test/reports/'
+                    sh 'rm -rf ./web/test/reports; mkdir ./web/test/reports'
+                    sh 'docker cp test:/test/reports/ ./web/test/'
                     echo "Stop test"
                     sh 'docker stop test'
                     sh 'docker rm test'
