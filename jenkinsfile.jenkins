@@ -33,7 +33,7 @@ pipeline {
                     echo "Stop test"
                     sh 'docker stop test'
                     sh 'docker rm test'
-                    sh 'touch reports/*.xml'
+                    sh 'touch ./web/test/reports/*.xml'
                 }
             }
         }
