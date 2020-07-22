@@ -12,7 +12,7 @@ services:
         ports: 
         - 81:80
         volumes: 
-        - ./web:/var/www
+        - ./web:/var/www/html/
         links: 
         - db
         depends_on:

@@ -26,6 +26,6 @@ RUN apt-get update
 
 EXPOSE 80
 
-WORKDIR /var/www
+WORKDIR /var/www/html/
 
 CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
