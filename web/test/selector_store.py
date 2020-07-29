@@ -548,8 +548,6 @@ class SearchHelper(BasePage):
                 ship_city = row['ship_city']
                 ship_zip_code = row['ship_zip_code']
                 ship_country = row['ship_country']
-            sql = "DELETE FROM orders WHERE orderid = '%s'" % (result)
-            cursor.execute(sql)
             sql = "SELECT * FROM customers WHERE customerid = '%s'" %(customerid)
             cursor.execute(sql)
             result = cursor.fetchall()
