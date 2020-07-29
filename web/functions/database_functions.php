@@ -85,8 +85,8 @@
 
 	function setCustomerId($name, $address, $city, $zip_code, $country){
 		$conn = db_connect();
-		$query = "INSERT INTO customers (name, 	address, city, zip_code, 	country) VALUES 
-			('', '" . $name . "', '" . $address . "', '" . $city . "', '" . $zip_code . "', '" . $country . "')";
+		$query = "INSERT INTO customers (name, 	address, city, zip_code, country) VALUES 
+			('" . $name . "', '" . $address . "', '" . $city . "', '" . $zip_code . "', '" . $country . "')";
 
 		$result = mysqli_query($conn, $query);
 		if(!$result){
