@@ -24,7 +24,7 @@ class StoreSeacrhLocators:
 class SearchHelper(BasePage):
 
     def brand(self):
-        return self.find_element(StoreSeacrhLocators.LOCATOR_STORE_SEARCH_TOP_BREND).click()
+        self.find_element(StoreSeacrhLocators.LOCATOR_STORE_SEARCH_TOP_BREND).click()
 
     def check_list(self):
         all_list = self.find_elements(StoreSeacrhLocators.LOCATOR_STORE_BOOK_START_LIST)
@@ -161,17 +161,17 @@ class SearchHelper(BasePage):
                 list_db = []
                 for row in result:
                     list_db.append(row["book_title"])
-            publisher = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_PUBLESHER).click()
-            container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
-            wiley = container.find_element_by_xpath(".//ul/li[2]/a").click()
-            container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
-            list_book_title_site = container.find_elements_by_xpath(".//h4")
-            list_site = []
-            for row in list_book_title_site:
-                list_site.append(row.text)
-            assert list_db == list_site
         finally:
             connection.close()
+        publisher = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_PUBLESHER).click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        wiley = container.find_element_by_xpath(".//ul/li[2]/a").click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        list_book_title_site = container.find_elements_by_xpath(".//h4")
+        list_site = []
+        for row in list_book_title_site:
+            list_site.append(row.text)
+        assert list_db == list_site
 
     def check_wiley_text(self):
         publisher = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_PUBLESHER).click()
@@ -322,3 +322,243 @@ class SearchHelper(BasePage):
             assert str(result_bd) == str(result_site)
         finally:
             connection.close()
+
+    def check_books_text(self):
+        books = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_BOOKS).click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        books_text = container.find_element_by_xpath(".//p").text
+        assert books_text == "Full Catalogs of Books"
+
+    def check_books_db(self):
+        connection = self.go_to_db()
+        try:
+            books = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_BOOKS).click()
+            container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+            list_book = container.find_elements_by_xpath(".//div[@class='col-md-3']/a")
+            for i in range(0, len(list_book), 1):
+                container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+                list_book = container.find_elements_by_xpath(".//div[@class='col-md-3']/a")
+                list_book[i].click()
+                with connection.cursor() as cursor:
+                    container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+                    isbn_book = container.find_element_by_xpath(".//tbody/tr[1]/td[2]").text
+                    sql = "SELECT * FROM books WHERE book_isbn= '%s'" %(isbn_book)
+                    cursor.execute(sql)
+                    result = cursor.fetchall()
+                book_title_site = container.find_element_by_xpath(".//p[@class='lead']").text
+                book_author_site = container.find_element_by_xpath(".//tr[2]/td[2]").text
+                book_descr_site = container.find_element_by_xpath(".//div/div[2]/p").text
+                book_price_site = container.find_element_by_xpath(".//tr[3]/td[2]").text
+                for row in result:
+                    book_title_db = row["book_title"]
+                    book_author_db = row["book_author"]
+                    #book_descr_db = row["book_descr"]
+                    book_price_db = row["book_price"]
+                    #book_descr_db = book_descr_db.replace('\n', ' ').replace('  ', ' ')
+                assert book_title_site == "Books > %s" %(book_title_db)
+                assert str(book_author_db).strip() == str(book_author_site).strip()
+                #assert str(book_descr_db) == str(book_descr_site)
+                assert str(book_price_db) == str(book_price_site)
+                self.driver.back()
+        finally:
+            connection.close()
+
+    def check_contact_text(self):
+        contact = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTACT).click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        books_text_contact = container.find_element_by_xpath(".//legend").text
+        books_text_container = container.find_element_by_xpath(".//p").text
+        books_text_name = container.find_element_by_xpath(".//label[@for='inputName']").text
+        books_text_email = container.find_element_by_xpath(".//label[@for='inputEmail']").text
+        books_text_textarea = container.find_element_by_xpath(".//label[@for='textArea']").text
+        books_text_help_block = container.find_element_by_xpath(".//span[@class='help-block']").text
+        input_name = container.find_element_by_xpath(".//*[@id='inputName']").get_attribute("placeholder")
+        input_email = container.find_element_by_xpath(".//*[@id='inputEmail']").get_attribute("placeholder")
+        input_textarea = container.find_element_by_xpath(".//*[@id='textArea']").get_attribute("placeholder")
+        assert books_text_contact == 'Contact'
+        assert books_text_container == "I’d love to hear from you! Complete the form to send me an email."
+        assert books_text_name == 'Name'
+        assert books_text_email == 'Email'
+        assert books_text_textarea == 'Textarea'
+        assert books_text_help_block == 'A longer block of help text that breaks onto a new line and may extend beyond one line.'
+        assert input_name == 'Name'
+        assert input_email == 'Email'
+        assert input_textarea == ''
+
+    def check_send_message(self):
+        contact = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTACT).click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        input_name = container.find_element_by_xpath(".//*[@id='inputName']")
+        input_email = container.find_element_by_xpath(".//*[@id='inputEmail']")
+        input_textarea = container.find_element_by_xpath(".//*[@id='textArea']")
+        input_name.send_keys('Petr')
+        input_email.send_keys('Petr@gmail.com')
+        input_textarea.send_keys('I like your books!')
+        button = container.find_element_by_xpath(".//button[@type='submit']").click()
+
+    def check_send_message_cancel(self):
+        contact = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTACT).click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        input_name = container.find_element_by_xpath(".//*[@id='inputName']")
+        input_email = container.find_element_by_xpath(".//*[@id='inputEmail']")
+        input_textarea = container.find_element_by_xpath(".//*[@id='textArea']")
+        input_name.send_keys('Petr')
+        input_email.send_keys('Petr@gmail.com')
+        input_textarea.send_keys('I like your books!')
+        text_name = input_name.get_attribute("value")
+        assert text_name == 'Petr'
+        button = container.find_element_by_xpath(".//button[@type='reset']").click()
+        text_name = input_name.get_attribute("value")
+        text_email = input_email.get_attribute("value")
+        text_textarea = input_textarea.get_attribute("value")
+        assert text_name == ''
+        assert text_email == ''
+        assert text_textarea == ''
+
+    def check_my_cart_zero(self):
+        self.find_element(StoreSeacrhLocators.LOCATOR_STORE_MY_CART).click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        my_cart_text = container.find_element_by_xpath(".//p").text
+        assert my_cart_text == 'Your cart is empty! Please make sure you add some books in it!'
+
+    def check_add_book(self):
+        books = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_BOOKS).click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        list_book = container.find_elements_by_xpath(".//div[@class='col-md-3']/a")
+        list_title_and_author_db = []
+        list_price_db = []
+        for i in range(0, 3, 1):
+            container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+            list_book = container.find_elements_by_xpath(".//div[@class='col-md-3']/a")
+            list_book[i].click()
+            try:
+                connection = self.go_to_db()
+                with connection.cursor() as cursor:
+                    container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+                    isbn_book = container.find_element_by_xpath(".//tbody/tr[1]/td[2]").text
+                    sql = "SELECT * FROM books WHERE book_isbn= '%s'" % (isbn_book)
+                    cursor.execute(sql)
+                    result = cursor.fetchall()
+                for row in result:
+                    book_title_db = row["book_title"]
+                    book_author_db = row["book_author"]
+                    book_price_db = row["book_price"]
+                    list_price_db.append('$' + str(book_price_db))
+                    list_title_and_author_db.append(book_title_db + ' by ' + str(book_author_db).strip())
+            finally:
+                connection.close()
+            container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+            book_add = container.find_element_by_xpath(".//input[@type='submit']").click()
+            container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+            book_add_save = container.find_element_by_xpath(".//input[@type='submit']").click()
+            container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+            continue_shopp = container.find_element_by_xpath(".//a[2]").click()
+        self.find_element(StoreSeacrhLocators.LOCATOR_STORE_MY_CART).click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        list_title_site = container.find_elements_by_xpath(".//tr/td[1]")
+        list_title_site_text = []
+        for row in list_title_site:
+            list_title_site_text.append(row.text)
+        list_price_site = container.find_elements_by_xpath(".//tr/td[2]")
+        list_price_site_text = []
+        for row in list_price_site:
+            list_price_site_text.append(row.text)
+        assert str(list_title_site_text) == str(list_title_and_author_db)
+        assert str(list_price_site_text) == str(list_price_db)
+
+    def check_my_cart_quantity(self):
+        my_cart = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_MY_CART).click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        list_quantity = container.find_elements_by_xpath(".//tr/td[3]/input")
+        list_quantity[0].clear()
+        list_quantity[0].send_keys(2)
+        list_quantity[1].clear()
+        list_quantity[1].send_keys(3)
+        list_quantity[2].clear()
+        list_quantity[2].send_keys(4)
+        book_add_save = container.find_element_by_xpath(".//input[@type='submit']").click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        list_quantity = container.find_elements_by_xpath(".//tr/td[3]/input")
+        list_price = container.find_elements_by_xpath(".//tr/td[2]")
+        list_total = container.find_elements_by_xpath(".//tr/td[4]")
+        quantity_rasch = 0
+        total_summ_rasch = 0
+        for i in range(0, len(list_quantity)):
+            quantity_rasch = quantity_rasch + int(list_quantity[i].get_attribute("value"))
+            price = list_price[i].text.replace('$', '')
+            price = float(price)
+            total = list_total[i].text.replace('$', '')
+            total = float(total)
+            quantity = float(list_quantity[i].get_attribute("value"))
+            price_rasch = price * quantity
+            total_summ_rasch = total_summ_rasch + total
+            assert price_rasch == total
+        quantity_site = container.find_element_by_xpath(".//tr[5]/th[3]").text
+        total_summ_site = container.find_element_by_xpath(".//tr[5]/th[4]").text
+        total_summ_site = total_summ_site.replace('$', '')
+        assert str(quantity_rasch) == str(quantity_site)
+        assert float(total_summ_rasch) == float(total_summ_site)
+
+    def check_checkout(self):
+        self.find_element(StoreSeacrhLocators.LOCATOR_STORE_MY_CART).click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        my_cart_text = container.find_element_by_xpath(".//a[1]").click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        input_name = container.find_element_by_xpath(".//input[@name='name']")
+        input_addres = container.find_element_by_xpath(".//input[@name='address']")
+        input_city = container.find_element_by_xpath(".//input[@name='city']")
+        input_zip_code = container.find_element_by_xpath(".//input[@name='zip_code']")
+        input_country = container.find_element_by_xpath(".//input[@name='country']")
+        check_text = container.find_element_by_xpath(".//p[@class='lead']").text
+        assert check_text == 'Please press Purchase to confirm your purchase, or Continue Shopping to add or remove items.'
+        input_name.send_keys('Peter')
+        input_addres.send_keys('ul. Svobody')
+        input_city.send_keys('Moscow')
+        input_zip_code.send_keys('143650')
+        input_country.send_keys('Russia')
+        purchase = container.find_element_by_xpath(".//input[@name='submit']").click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        input_number = container.find_element_by_xpath(".//input[@name='card_number']")
+        input_card_pid = container.find_element_by_xpath(".//input[@name='card_PID']")
+        input_card_expire = container.find_element_by_xpath(".//input[@name='card_expire']")
+        input_card_owner = container.find_element_by_xpath(".//input[@name='card_owner']")
+        input_number.send_keys('9999 9999 9999 9999')
+        input_card_pid.send_keys('999')
+        input_card_expire.send_keys('11.11.2020')
+        input_card_owner.send_keys('Petr')
+        purchase = container.find_element_by_xpath(".//button[@type='submit']").click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        final_purchase_text = container.find_element_by_xpath(".//p").text
+        assert final_purchase_text == 'Your order has been processed sucessfully. Please check your email to get your order confirmation and shipping detail!. Your cart has been empty.'
+        connection = self.go_to_db()
+        with connection.cursor() as cursor:
+            sql = "SELECT orderid FROM orders"
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            result = result[-1]['orderid']
+            sql = "SELECT * FROM orders WHERE orderid = '%s'" %(result)
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            for row in result:
+                customerid = row['customerid']
+                amount = row['amount']
+                date = row['date']
+                ship_name = row['ship_name']
+                ship_address = row['ship_address']
+                ship_city = row['ship_city']
+                ship_zip_code = row['ship_zip_code']
+                ship_country = row['ship_country']
+            sql = "SELECT * FROM customers WHERE customerid = '%s'" %(customerid)
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            for row in result:
+                name = row["name"]
+                address = row["address"]
+                city = row["city"]
+                zip_code = row["zip_code"]
+                country = row["country"]
+        assert ship_name == name == 'Peter'
+        assert ship_address == address == 'ul. Svobody'
+        assert ship_city == city == 'Moscow'
+        assert ship_zip_code == zip_code == '143650'
+        assert ship_country == country == 'Russia'
