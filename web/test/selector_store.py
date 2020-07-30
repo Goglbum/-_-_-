@@ -531,32 +531,41 @@ class SearchHelper(BasePage):
         final_purchase_text = container.find_element_by_xpath(".//p").text
         assert final_purchase_text == 'Your order has been processed sucessfully. Please check your email to get your order confirmation and shipping detail!. Your cart has been empty.'
         connection = self.go_to_db()
-        with connection.cursor() as cursor:
-            sql = "SELECT orderid FROM orders"
-            cursor.execute(sql)
-            result = cursor.fetchall()
-            result = result[-1]['orderid']
-            sql = "SELECT * FROM orders WHERE orderid = '%s'" %(result)
-            cursor.execute(sql)
-            result = cursor.fetchall()
-            for row in result:
-                customerid = row['customerid']
-                amount = row['amount']
-                date = row['date']
-                ship_name = row['ship_name']
-                ship_address = row['ship_address']
-                ship_city = row['ship_city']
-                ship_zip_code = row['ship_zip_code']
-                ship_country = row['ship_country']
-            sql = "SELECT * FROM customers WHERE customerid = '%s'" %(customerid)
-            cursor.execute(sql)
-            result = cursor.fetchall()
-            for row in result:
-                name = row["name"]
-                address = row["address"]
-                city = row["city"]
-                zip_code = row["zip_code"]
-                country = row["country"]
+        try:
+            with connection.cursor() as cursor:
+                sql = "SELECT orderid FROM orders"
+                cursor.execute(sql)
+                result = cursor.fetchall()
+                result = result[-1]['orderid']
+                sql = "SELECT * FROM orders WHERE orderid = '%s'" %(result)
+                cursor.execute(sql)
+                result = cursor.fetchall()
+                for row in result:
+                    customerid = row['customerid']
+                    amount = row['amount']
+                    date = row['date']
+                    ship_name = row['ship_name']
+                    ship_address = row['ship_address']
+                    ship_city = row['ship_city']
+                    ship_zip_code = row['ship_zip_code']
+                    ship_country = row['ship_country']
+                    orderid = row['orderid']
+                sql = "SELECT * FROM customers WHERE customerid = '%s'" %(customerid)
+                cursor.execute(sql)
+                result = cursor.fetchall()
+                for row in result:
+                    name = row["name"]
+                    address = row["address"]
+                    city = row["city"]
+                    zip_code = row["zip_code"]
+                    country = row["country"]
+                sql = "DELETE FROM orders WHERE orderid = '%s'" % (orderid)
+                cursor.execute(sql)
+                sql = "DELETE FROM order_items WHERE orderid = '%s'" % (orderid)
+                cursor.execute(sql)
+                connection.commit()
+        finally:
+            connection.close()
         assert ship_name == name == 'Peter'
         assert ship_address == address == 'ul. Svobody'
         assert ship_city == city == 'Moscow'
