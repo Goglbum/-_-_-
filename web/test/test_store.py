@@ -221,13 +221,13 @@ def test_admin_incorrect_pass (browser):
         main_page.go_to_site()
         main_page.check_admin_incorrect_pass()
 
-def test_admin_incorrect_pass (browser):
+def test_admin_empty_pass (browser):
     with allure.step('Admin empty pass'):
         main_page = SearchHelper(browser)
         main_page.go_to_site()
         main_page.check_admin_empty_pass()
 
-def test_admin_incorrect_pass (browser):
+def test_admin_empty_login (browser):
     with allure.step('Admin empty login'):
         main_page = SearchHelper(browser)
         main_page.go_to_site()
