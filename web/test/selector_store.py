@@ -18,6 +18,7 @@ class StoreSeacrhLocators:
     LOCATOR_STORE_ADMIN_LOG = (By.XPATH, "//div[@class ='text-muted pull-right']")
     LOCATOR_STORE_PROJECT = (By.XPATH, "//div[@class ='text-muted pull-left']")
     LOCATOR_STORE_CONTAINER = (By.XPATH, "//*[@id='main']")
+    LOCATOR_STORE_HTML = (By.XPATH, "//html")
 
 
 
@@ -94,7 +95,6 @@ class SearchHelper(BasePage):
                 for row in result:
                     list_db.append(row["publisherid"])
                 list_db_text = Counter(list_db)
-
             publisher= self.find_element(StoreSeacrhLocators.LOCATOR_STORE_PUBLESHER).click()
             publisher_list = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
             list_site = publisher_list.find_elements_by_xpath(".//ul/li")
@@ -571,3 +571,219 @@ class SearchHelper(BasePage):
         assert ship_city == city == 'Moscow'
         assert ship_zip_code == zip_code == '143650'
         assert ship_country == country == 'Russia'
+
+    def check_admin_log(self):
+        self.find_element(StoreSeacrhLocators.LOCATOR_STORE_ADMIN_LOG).click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        input_name = container.find_element_by_xpath(".//input[@name='name']")
+        input_pass = container.find_element_by_xpath(".//input[@name='pass']")
+        input_name.send_keys('admin@admin.com')
+        input_pass.send_keys('admin')
+        button = container.find_element_by_xpath(".//input[@name='submit']").click()
+        assert self.driver.title == "List book"
+
+    def check_admin_incorrect_pass(self):
+        self.find_element(StoreSeacrhLocators.LOCATOR_STORE_ADMIN_LOG).click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        input_name = container.find_element_by_xpath(".//input[@name='name']")
+        input_pass = container.find_element_by_xpath(".//input[@name='pass']")
+        input_name.send_keys('admin@admin.com')
+        input_pass.send_keys('root')
+        button = container.find_element_by_xpath(".//input[@name='submit']").click()
+        result = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_HTML).text
+        assert result == "Name or pass is wrong. Check again!"
+
+    def check_admin_empty_pass(self):
+        self.find_element(StoreSeacrhLocators.LOCATOR_STORE_ADMIN_LOG).click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        input_name = container.find_element_by_xpath(".//input[@name='name']")
+        input_name.send_keys('admin@admin.com')
+        button = container.find_element_by_xpath(".//input[@name='submit']").click()
+        result = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_HTML).text
+        assert result == "Name or Pass is empty!"
+
+    def check_admin_empty_login(self):
+        self.find_element(StoreSeacrhLocators.LOCATOR_STORE_ADMIN_LOG).click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        input_pass = container.find_element_by_xpath(".//input[@name='pass']")
+        input_pass.send_keys('admin')
+        button = container.find_element_by_xpath(".//input[@name='submit']").click()
+        result = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_HTML).text
+        assert result == "Name or Pass is empty!"
+
+    def check_admin_book_add(self):
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        add_book = container.find_element_by_xpath(".//p[@class='lead']/a").click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        input_isbn = container.find_element_by_xpath(".//input[@name='isbn']")
+        input_title = container.find_element_by_xpath(".//input[@name='title']")
+        input_author = container.find_element_by_xpath(".//input[@name='author']")
+        input_description = container.find_element_by_xpath(".//textarea[@name='descr']")
+        input_price = container.find_element_by_xpath(".//input[@name='price']")
+        input_publisher = container.find_element_by_xpath(".//input[@name='publisher']")
+        isbn_text = '978-1-49192-7076-771'
+        title_text = 'New Book'
+        author_text = 'Peter'
+        description_text = 'This is a new good book.'
+        price_text = '40'
+        publisher_text = 'Wrox'
+        input_isbn.send_keys(isbn_text)
+        input_title.send_keys(title_text)
+        input_author.send_keys(author_text)
+        input_description.send_keys(description_text)
+        input_price.send_keys(price_text)
+        input_publisher.send_keys(publisher_text)
+        button = container.find_element_by_xpath(".//input[@name='add']").click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        isbn_list = container.find_elements_by_xpath(".//tr/td[1]")
+        isbn_list_text = []
+        for row in isbn_list:
+            isbn_list_text.append(row.text)
+        index = isbn_list_text.index(isbn_text) + 2
+        book_info_list = container.find_element_by_xpath(".//tr[%s]" %(index))
+        title = book_info_list.find_element_by_xpath(".//td[2]").text
+        author = book_info_list.find_element_by_xpath(".//td[3]").text
+        description = book_info_list.find_element_by_xpath(".//td[5]").text
+        price = book_info_list.find_element_by_xpath(".//td[6]").text
+        publisher = book_info_list.find_element_by_xpath(".//td[7]").text
+        assert title_text == title
+        assert author_text == author
+        assert description_text == description
+        assert float(price_text) == float(price)
+        assert publisher_text == publisher
+
+    def check_long_isbn_book_add(self):
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        add_book = container.find_element_by_xpath(".//p[@class='lead']/a").click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        input_isbn = container.find_element_by_xpath(".//input[@name='isbn']")
+        input_title = container.find_element_by_xpath(".//input[@name='title']")
+        input_author = container.find_element_by_xpath(".//input[@name='author']")
+        input_description = container.find_element_by_xpath(".//textarea[@name='descr']")
+        input_price = container.find_element_by_xpath(".//input[@name='price']")
+        input_publisher = container.find_element_by_xpath(".//input[@name='publisher']")
+        isbn_text = '978999-1-49192-7076-771'
+        title_text = 'New Book'
+        author_text = 'Peter'
+        description_text = 'This is a new good book.'
+        price_text = '40'
+        publisher_text = 'Wrox'
+        input_isbn.send_keys(isbn_text)
+        input_title.send_keys(title_text)
+        input_author.send_keys(author_text)
+        input_description.send_keys(description_text)
+        input_price.send_keys(price_text)
+        input_publisher.send_keys(publisher_text)
+        button = container.find_element_by_xpath(".//input[@name='add']").click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER).text
+        assert container == "Can't add new data Data too long for column 'book_isbn' at row 1"
+
+    def check_repetitive_book_add(self):
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        add_book = container.find_element_by_xpath(".//p[@class='lead']/a").click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        input_isbn = container.find_element_by_xpath(".//input[@name='isbn']")
+        input_title = container.find_element_by_xpath(".//input[@name='title']")
+        input_author = container.find_element_by_xpath(".//input[@name='author']")
+        input_description = container.find_element_by_xpath(".//textarea[@name='descr']")
+        input_price = container.find_element_by_xpath(".//input[@name='price']")
+        input_publisher = container.find_element_by_xpath(".//input[@name='publisher']")
+        isbn_text = '978-1-49192-7076-771'
+        title_text = 'New Book'
+        author_text = 'Peter'
+        description_text = 'This is a new good book.'
+        price_text = '40'
+        publisher_text = 'Wrox'
+        input_isbn.send_keys(isbn_text)
+        input_title.send_keys(title_text)
+        input_author.send_keys(author_text)
+        input_description.send_keys(description_text)
+        input_price.send_keys(price_text)
+        input_publisher.send_keys(publisher_text)
+        button = container.find_element_by_xpath(".//input[@name='add']").click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER).text
+        assert container == "Can't add new data Duplicate entry '" + isbn_text + "' for key 'books.PRIMARY'"
+
+    def check_non_existent_publisher_book_add(self):
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        add_book = container.find_element_by_xpath(".//p[@class='lead']/a").click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        input_isbn = container.find_element_by_xpath(".//input[@name='isbn']")
+        input_title = container.find_element_by_xpath(".//input[@name='title']")
+        input_author = container.find_element_by_xpath(".//input[@name='author']")
+        input_description = container.find_element_by_xpath(".//textarea[@name='descr']")
+        input_price = container.find_element_by_xpath(".//input[@name='price']")
+        input_publisher = container.find_element_by_xpath(".//input[@name='publisher']")
+        isbn_text = '978-1-49192-7076-779'
+        title_text = 'New Book'
+        author_text = 'Peter'
+        description_text = 'This is a new good book.'
+        price_text = '40'
+        publisher_text = 'Wroxi'
+        input_isbn.send_keys(isbn_text)
+        input_title.send_keys(title_text)
+        input_author.send_keys(author_text)
+        input_description.send_keys(description_text)
+        input_price.send_keys(price_text)
+        input_publisher.send_keys(publisher_text)
+        button = container.find_element_by_xpath(".//input[@name='add']").click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER).text
+        assert container == "Can't add new data Incorrect integer value: '' for column 'publisherid' at row 1"
+
+    def check_edit_book(self):
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        isbn_text = '978-1-49192-7076-771'
+        isbn_list = container.find_elements_by_xpath(".//tr/td[1]")
+        isbn_list_text = []
+        for row in isbn_list:
+            isbn_list_text.append(row.text)
+        index = isbn_list_text.index(isbn_text) + 2
+        book_edit = container.find_element_by_xpath(".//tr[%s]/td[8]/a" % (index)).click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        input_title = container.find_element_by_xpath(".//input[@name='title']")
+        input_author = container.find_element_by_xpath(".//input[@name='author']")
+        input_description = container.find_element_by_xpath(".//textarea[@name='descr']")
+        input_price = container.find_element_by_xpath(".//input[@name='price']")
+        input_publisher = container.find_element_by_xpath(".//input[@name='publisher']")
+        title_text = 'Book New Book'
+        author_text = 'Peter Peter'
+        description_text = 'This is a new good book!!!!!!'
+        price_text = '4000'
+        publisher_text = 'Apress'
+        input_title.clear()
+        input_title.send_keys(title_text)
+        input_author.clear()
+        input_author.send_keys(author_text)
+        input_description.clear()
+        input_description.send_keys(description_text)
+        input_price.clear()
+        input_price.send_keys(price_text)
+        input_change = container.find_element_by_xpath(".//input[@name='save_change']").click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        input_confirm = container.find_element_by_xpath(".//a[@class ='btn btn-success']").click()
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        isbn_list = container.find_elements_by_xpath(".//tr/td[1]")
+        isbn_list_text = []
+        for row in isbn_list:
+            isbn_list_text.append(row.text)
+        index = isbn_list_text.index(isbn_text) + 2
+        book_info_list = container.find_element_by_xpath(".//tr[%s]" % (index))
+        title = book_info_list.find_element_by_xpath(".//td[2]").text
+        author = book_info_list.find_element_by_xpath(".//td[3]").text
+        description = book_info_list.find_element_by_xpath(".//td[5]").text
+        price = book_info_list.find_element_by_xpath(".//td[6]").text
+        publisher = book_info_list.find_element_by_xpath(".//td[7]").text
+        assert title_text == title
+        assert author_text == author
+        assert description_text == description
+        assert float(price_text) == float(price)
+
+    def check_delete_book(self):
+        container = self.find_element(StoreSeacrhLocators.LOCATOR_STORE_CONTAINER)
+        isbn_text = '978-1-49192-7076-771'
+        isbn_list = container.find_elements_by_xpath(".//tr/td[1]")
+        isbn_list_text = []
+        for row in isbn_list:
+            isbn_list_text.append(row.text)
+        index = isbn_list_text.index(isbn_text) + 2
+        book_delete = container.find_element_by_xpath(".//tr[%s]/td[9]/a" % (index)).click()

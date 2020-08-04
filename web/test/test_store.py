@@ -167,7 +167,6 @@ def test_books_db (browser):
         main_page.go_to_site()
         main_page.check_books_db()
 
-
 def test_contact_text (browser):
     with allure.step('Проверяем текст в Contact'):
         main_page = SearchHelper(browser)
@@ -209,4 +208,70 @@ def test_checkout (browser):
         main_page = SearchHelper(browser)
         main_page.go_to_site()
         main_page.check_checkout()
-        
+
+def test_admin_log (browser):
+    with allure.step('Admin login'):
+        main_page = SearchHelper(browser)
+        main_page.go_to_site()
+        main_page.check_admin_log()
+
+def test_admin_incorrect_pass (browser):
+    with allure.step('Admin incorrect pass'):
+        main_page = SearchHelper(browser)
+        main_page.go_to_site()
+        main_page.check_admin_incorrect_pass()
+
+def test_admin_incorrect_pass (browser):
+    with allure.step('Admin empty pass'):
+        main_page = SearchHelper(browser)
+        main_page.go_to_site()
+        main_page.check_admin_empty_pass()
+
+def test_admin_incorrect_pass (browser):
+    with allure.step('Admin empty login'):
+        main_page = SearchHelper(browser)
+        main_page.go_to_site()
+        main_page.check_admin_empty_login()
+
+def test_admin_book_add (browser):
+    with allure.step('Добавление книги'):
+        main_page = SearchHelper(browser)
+        main_page.go_to_site()
+        main_page.check_admin_log()
+        main_page.check_admin_book_add()
+
+def test_long_isbn_book_add (browser):
+    with allure.step('Добавление книги с длинным ISBN'):
+        main_page = SearchHelper(browser)
+        main_page.go_to_site()
+        main_page.check_admin_log()
+        main_page.check_long_isbn_book_add()
+
+def test_repetitive_book_add (browser):
+    with allure.step('Добавление книги с повторяющимся ISBN'):
+        main_page = SearchHelper(browser)
+        main_page.go_to_site()
+        main_page.check_admin_log()
+        main_page.check_repetitive_book_add()
+
+def test_non_existent_publisher_book_add (browser):
+    with allure.step('Добавление книги с несуществующим Publisher'):
+        main_page = SearchHelper(browser)
+        main_page.go_to_site()
+        main_page.check_admin_log()
+        main_page.check_non_existent_publisher_book_add()
+
+def test_edit_book (browser):
+    with allure.step('Редактирование книги'):
+        main_page = SearchHelper(browser)
+        main_page.go_to_site()
+        main_page.check_admin_log()
+        main_page.check_edit_book()
+
+def test_delete_book (browser):
+    with allure.step('Удаление книги'):
+        main_page = SearchHelper(browser)
+        main_page.go_to_site()
+        main_page.check_admin_log()
+        main_page.check_delete_book()
+
